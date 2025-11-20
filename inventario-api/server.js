@@ -53,59 +53,39 @@ const db = mysql.createPool({
 const ensureCriticalSchema = async (connection) => {
     console.log("Running critical schema check...");
     
-    // 1. Verificar Tabela LICENSES
-    try {
-        const [columns] = await connection.query("SHOW COLUMNS FROM licenses");
-        const columnNames = columns.map(c => c.Field);
+    // Helper para verificar e adicionar coluna com segurança
+    const checkAndAddColumn = async (tableName, columnName, columnDef) => {
+        try {
+            // Verifica se a tabela existe primeiro
+            const [tableExists] = await connection.query(`SHOW TABLES LIKE '${tableName}'`);
+            if (tableExists.length === 0) return;
 
-        if (!columnNames.includes('empresa')) {
-            console.log("Auto-repair: Adding 'empresa' to licenses");
-            await connection.query("ALTER TABLE licenses ADD COLUMN empresa VARCHAR(255) NULL");
+            const [columns] = await connection.query(`SHOW COLUMNS FROM ${tableName}`);
+            const columnNames = columns.map(c => c.Field);
+
+            if (!columnNames.includes(columnName)) {
+                console.log(`Auto-repair: Adding '${columnName}' to ${tableName}`);
+                await connection.query(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDef}`);
+            }
+        } catch (err) {
+            console.error(`Error checking/adding column ${columnName} to ${tableName}:`, err.message);
+            // Não relança o erro para não derrubar o servidor
         }
-        if (!columnNames.includes('observacoes')) {
-            console.log("Auto-repair: Adding 'observacoes' to licenses");
-            await connection.query("ALTER TABLE licenses ADD COLUMN observacoes TEXT");
-        }
-        if (!columnNames.includes('approval_status')) {
-            console.log("Auto-repair: Adding 'approval_status' to licenses");
-            await connection.query("ALTER TABLE licenses ADD COLUMN approval_status VARCHAR(50) DEFAULT 'approved'");
-        }
-        if (!columnNames.includes('rejection_reason')) {
-            console.log("Auto-repair: Adding 'rejection_reason' to licenses");
-            await connection.query("ALTER TABLE licenses ADD COLUMN rejection_reason TEXT");
-        }
-        if (!columnNames.includes('created_by_id')) {
-            console.log("Auto-repair: Adding 'created_by_id' to licenses");
-            await connection.query("ALTER TABLE licenses ADD COLUMN created_by_id INT NULL");
-        }
-    } catch (err) {
-        console.error("Error ensuring license schema:", err);
-    }
+    };
+
+    // 1. Verificar Tabela LICENSES
+    await checkAndAddColumn('licenses', 'empresa', 'VARCHAR(255) NULL');
+    await checkAndAddColumn('licenses', 'observacoes', 'TEXT');
+    await checkAndAddColumn('licenses', 'approval_status', "VARCHAR(50) DEFAULT 'approved'");
+    await checkAndAddColumn('licenses', 'rejection_reason', 'TEXT');
+    await checkAndAddColumn('licenses', 'created_by_id', 'INT NULL');
 
     // 2. Verificar Tabela EQUIPMENT
-    try {
-        const [eqColumns] = await connection.query("SHOW COLUMNS FROM equipment");
-        const eqColumnNames = eqColumns.map(c => c.Field);
+    await checkAndAddColumn('equipment', 'observacoes', 'TEXT');
+    await checkAndAddColumn('equipment', 'approval_status', "VARCHAR(50) DEFAULT 'approved'");
+    await checkAndAddColumn('equipment', 'rejection_reason', 'TEXT');
+    await checkAndAddColumn('equipment', 'created_by_id', 'INT NULL');
 
-        if (!eqColumnNames.includes('observacoes')) {
-            console.log("Auto-repair: Adding 'observacoes' to equipment");
-            await connection.query("ALTER TABLE equipment ADD COLUMN observacoes TEXT");
-        }
-        if (!eqColumnNames.includes('approval_status')) {
-            console.log("Auto-repair: Adding 'approval_status' to equipment");
-            await connection.query("ALTER TABLE equipment ADD COLUMN approval_status VARCHAR(50) DEFAULT 'approved'");
-        }
-        if (!eqColumnNames.includes('rejection_reason')) {
-            console.log("Auto-repair: Adding 'rejection_reason' to equipment");
-            await connection.query("ALTER TABLE equipment ADD COLUMN rejection_reason TEXT");
-        }
-        if (!eqColumnNames.includes('created_by_id')) {
-             console.log("Auto-repair: Adding 'created_by_id' to equipment");
-             await connection.query("ALTER TABLE equipment ADD COLUMN created_by_id INT NULL");
-        }
-    } catch (err) {
-        console.error("Error ensuring equipment schema:", err);
-    }
     console.log("Critical schema check complete.");
 };
 
@@ -326,7 +306,7 @@ const runMigrations = async () => {
             } catch (err) {
                 console.error("Error during migration, rolling back.", err);
                 await connection.rollback();
-                // Don't throw here, let ensureCriticalSchema handle it
+                // Don't throw here, let ensureCriticalSchema handle it safely
             }
         } else {
             console.log("Database schema is up to date.");
@@ -1347,142 +1327,4 @@ app.listen(PORT, async () => {
         console.error("Failed to start server due to migration error:", err);
         process.exit(1);
     }
-});--- START OF FILE .gitignore ---
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Directory for instrumented libs generated by jscoverage/JSCover
-lib-cov
-
-# Coverage directory used by tools like istanbul
-coverage
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# Bower dependency directory (https://bower.io/)
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# TypeScript v1 declaration files
-typings/
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
-.env.test
-.env.production
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-out
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-# Comment in the public line in if your project uses Gatsby and not Next.js
-# https://nextjs.org/blog/next-9-1#public-directory-support
-# public
-
-# vuepress build output
-.vuepress/dist
-
-# Serverless directories
-.serverless/
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# Mac
-.DS_Store
-
-# Vite
-dist-ssr
-*.local
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs
-*.njsproj
-*.sln
-*.sw?
-
-# Backend Backups
-inventario-api/backups/
+});

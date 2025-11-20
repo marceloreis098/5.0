@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Equipment, User, UserRole, EquipmentHistory } from '../types';
 import { getEquipment, addEquipment, updateEquipment, deleteEquipment, getEquipmentHistory } from '../services/apiService';
@@ -74,8 +75,11 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({ equipment, onCl
             onClose();
         } catch (error: any) {
             console.error("Failed to save equipment", error);
-            // Show the specific error message from the API if available
-            setSaveError(error.message || "Falha ao salvar equipamento. Tente novamente.");
+            let message = error.message || "Falha ao salvar equipamento. Tente novamente.";
+            if (error instanceof TypeError && message === 'Failed to fetch') {
+                message = "Erro de conexão com o servidor. Verifique se a API está online.";
+            }
+            setSaveError(message);
         } finally {
             setIsSaving(false);
         }
