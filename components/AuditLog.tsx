@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { getAuditLog } from '../services/apiService';
 import { AuditLogEntry } from '../types';
 import Icon from './common/Icon';
-import { icons } from 'lucide-react';
+import * as icons from 'lucide-react';
 
 const AuditLog: React.FC = () => {
     const [logs, setLogs] = useState<AuditLogEntry[]>([]);

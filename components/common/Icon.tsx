@@ -11,7 +11,7 @@ interface IconProps {
 
 const Icon: React.FC<IconProps> = ({ name, color, size, className }) => {
   // @ts-ignore - dynamic access to icons
-  const LucideIcon = icons[name];
+  const LucideIcon = icons[name] as React.ElementType;
 
   if (!LucideIcon) {
     console.warn(`Icon "${name}" not found in lucide-react`);
