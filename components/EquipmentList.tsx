@@ -75,7 +75,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({ equipment, onCl
         } catch (error: any) {
             console.error("Failed to save equipment", error);
             // Show the specific error message from the API if available
-            setSaveError(error.message || "Falha ao salvar equipamento. Verifique os dados e tente novamente.");
+            setSaveError(error.message || "Falha ao salvar equipamento. Tente novamente.");
         } finally {
             setIsSaving(false);
         }
