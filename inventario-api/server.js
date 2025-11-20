@@ -50,7 +50,6 @@ const db = mysql.createPool({
 });
 
 // Função de Auto-Recuperação do Schema
-// Garante que colunas críticas existam mesmo que as migrações falhem ou dessincronizem
 const ensureCriticalSchema = async (connection) => {
     console.log("Running critical schema check...");
     
@@ -387,9 +386,13 @@ const cleanDataForDB = (data, allowedFields) => {
     for (const field of allowedFields) {
         if (Object.prototype.hasOwnProperty.call(data, field)) {
             let value = data[field];
-            if ((field.startsWith('data') || field === 'lastLogin') && value === '') {
+            // Treat empty strings for dates and IDs as NULL to prevent SQL errors
+            if ((field.startsWith('data') || field === 'lastLogin' || field.endsWith('_id')) && value === '') {
                 value = null;
             }
+            // Specific fields that shouldn't be empty string in DB
+            if (field === 'memoriaFisicaTotal' && value === '') value = null;
+
             cleaned[field] = value;
         }
     }
@@ -673,13 +676,7 @@ app.post('/api/equipment', async (req, res) => {
         if (userRows.length === 0) return res.status(404).json({ message: "User not found" });
         const user = userRows[0];
 
-        // NOTE: Duplicate serial check removed here as requested by user to allow multiple records with same serial (different users)
-        // if (equipment.serial) {
-        //     const [serialCheck] = await db.promise().query('SELECT id FROM equipment WHERE serial = ?', [equipment.serial]);
-        //     if (serialCheck.length > 0) {
-        //         return res.status(409).json({ message: "Erro: O número de série já está cadastrado no sistema." });
-        //     }
-        // }
+        // Serial duplication check removed per user request
 
         const newEquipmentData = cleanDataForDB(equipment, EQUIPMENT_FIELDS);
         
