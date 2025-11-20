@@ -114,10 +114,15 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, isSsoEnabled }) => {
       </div>
       <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-3 text-xs">
         <div className="relative group">
+            {/* Foto com efeito de Zoom */}
              <img
               src={developerPhoto}
               alt="Dev"
-              className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-dark-border bg-gray-200 transition-transform duration-300 origin-bottom hover:scale-[5] hover:z-50 cursor-pointer relative"
+              className={`
+                w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-dark-border bg-gray-200 
+                transition-transform duration-300 ease-out origin-bottom
+                hover:scale-[5] hover:z-50 hover:shadow-2xl cursor-pointer relative
+              `}
             />
         </div>
         <div className="text-left text-gray-500 dark:text-dark-text-secondary">
