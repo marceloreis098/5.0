@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { icons } from 'lucide-react';
+import * as icons from 'lucide-react';
 
 interface IconProps {
   name: keyof typeof icons;
@@ -10,10 +10,12 @@ interface IconProps {
 }
 
 const Icon: React.FC<IconProps> = ({ name, color, size, className }) => {
+  // @ts-ignore - dynamic access to icons
   const LucideIcon = icons[name];
 
   if (!LucideIcon) {
-    return null; // Or return a default icon
+    console.warn(`Icon "${name}" not found in lucide-react`);
+    return null;
   }
 
   return <LucideIcon color={color} size={size} className={className} />;

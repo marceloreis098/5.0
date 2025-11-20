@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, UserRole, AppSettings, License } from '../types';
 import Icon from './common/Icon';
@@ -345,7 +346,7 @@ const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
         { id: 'termo', label: 'Termos', icon: 'FileText', adminOnly: true },
         { id: 'integration', label: 'Integração Gemini', icon: 'Bot' },
         { id: 'database', label: 'Banco de Dados', icon: 'HardDrive', adminOnly: true },
-        { id: 'import', label: 'Importações', icon: 'UploadCloud', adminOnly: true },
+        { id: 'import', label: 'Importações', icon: 'CloudUpload', adminOnly: true },
     ];
 
     if (isLoading) {
@@ -394,7 +395,7 @@ const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
                             <p className="text-gray-500">Verificando status...</p>
                         ) : apiStatus.ok ? (
                             <div className="p-3 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-md text-sm flex items-center gap-2">
-                                <Icon name="CheckCircle" size={18} />
+                                <Icon name="CircleCheck" size={18} />
                                 <span>Conexão com a API estabelecida com sucesso.</span>
                             </div>
                         ) : (
@@ -464,7 +465,7 @@ const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
                                             <p className="text-sm text-gray-500 dark:text-dark-text-secondary mt-1 mb-3">Faça o upload do arquivo XML de metadados do seu provedor de identidade para preencher os campos automaticamente.</p>
                                             <input type="file" accept=".xml, text/xml" onChange={handleMetadataUpload} id="metadata-upload" className="hidden" />
                                             <label htmlFor="metadata-upload" className="cursor-pointer inline-flex items-center gap-2 bg-brand-secondary text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                                                <Icon name="UploadCloud" size={18} /> Carregar Arquivo XML
+                                                <Icon name="CloudUpload" size={18} /> Carregar Arquivo XML
                                             </label>
                                         </div>
     
@@ -555,7 +556,6 @@ const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
                                 </p>
                                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 text-blue-800 dark:text-blue-200 text-sm mb-6">
                                     <p className="font-semibold">Placeholders disponíveis:</p>
-                                    {/* FIX: Corrected JSX syntax for displaying placeholder strings. The double curly braces `{{...}}` are for style objects, not for rendering strings with braces. Wrapped the strings in template literals inside single curly braces. */}
                                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                                         <code>{`{{USUARIO}}`}</code><code>{`{{EQUIPAMENTO}}`}</code><code>{`{{SERIAL}}`}</code><code>{`{{PATRIMONIO}}`}</code>
                                         <code>{`{{EMPRESA}}`}</code><code>{`{{DATA}}`}</code><code>{`{{DATA_ENTREGA}}`}</code><code>{`{{DATA_DEVOLUCAO}}`}</code>
@@ -608,7 +608,7 @@ const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
                             ) : hasGeminiApiKey ? (
                                 <div className="flex items-center justify-between p-3 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-md text-sm">
                                     <div className="flex items-center gap-2">
-                                        <Icon name="CheckCircle" size={18} />
+                                        <Icon name="CircleCheck" size={18} />
                                         <span>Chave da API Gemini selecionada.</span>
                                     </div>
                                     <button
@@ -655,7 +655,7 @@ const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
                                 <p className="mb-2">Gerencie o banco de dados da aplicação. Recomenda-se fazer backup regularmente.</p>
                                 {backupStatus?.hasBackup ? (
                                     <p className="flex items-center gap-2 text-green-700 dark:text-green-300 font-medium">
-                                        <Icon name="CheckCircle" size={16} /> Último backup: {new Date(backupStatus.backupTimestamp!).toLocaleString()}
+                                        <Icon name="CircleCheck" size={16} /> Último backup: {new Date(backupStatus.backupTimestamp!).toLocaleString()}
                                     </p>
                                 ) : (
                                     <p className="flex items-center gap-2 text-red-700 dark:text-red-300 font-medium">
